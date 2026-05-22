@@ -159,7 +159,7 @@
                 title: "Anthony Pappa - Selador Selected Works 2021 DJ Mix",
                 date: "Dec 2021",
                 duration: "3h 54m",
-                googleDriveId: "1aiftnZ-ETJtOULnw1sHapJHHk2Uzc8aC"
+                streamUrl: "https://f004.backblazeb2.com/file/clevetunes/Anthony%20Pappa%20-%20Selador%20Selected%20Works%202021%20DJ%20Mix.wav"
             }
         ];
 
@@ -187,11 +187,6 @@
             playlistContainer.appendChild(card);
         });
 
-        function extractDriveId(idOrUrl) {
-            const match = idOrUrl.match(/\/d\/([a-zA-Z0-9_-]+)/);
-            return match ? match[1] : idOrUrl;
-        }
-
         function playMix(index) {
             document.querySelectorAll('.track-card').forEach(c => c.classList.remove('active'));
 
@@ -199,11 +194,8 @@
             selectedCard.classList.add('active');
 
             const mix = mixes[index];
-            const fileId = extractDriveId(mix.googleDriveId);
-            const streamUrl = `https://drive.google.com/uc?export=view&id=${fileId}`;
-
             nowPlayingTitle.textContent = `Playing: ${mix.title}`;
-            audioPlayer.src = streamUrl;
+            audioPlayer.src = mix.streamUrl;
             audioPlayer.play();
         }
     </script>
