@@ -100,6 +100,18 @@
 
         .track-info p { font-size: 0.8rem; color: var(--muted); }
 
+        .track-blurb {
+            font-size: 0.8rem;
+            color: var(--muted);
+            line-height: 1.5;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #2d3748;
+            display: none;
+        }
+
+        .track-card.active .track-blurb { display: block; }
+
         /* Player bar */
         .player-bar {
             position: fixed;
@@ -263,14 +275,6 @@
 <audio id="audio" preload="none"></audio>
 
 <script>
-    const mixes = [
-        {
-            title: "Anthony Pappa - Selador Selected Works 2021 DJ Mix",
-            meta: "Dec 2021 • 3h 54m • WAV lossless",
-            streamUrl: "https://f004.backblazeb2.com/file/clevetunes/Anthony%20Pappa%20-%20Selador%20Selected%20Works%202021%20DJ%20Mix.wav"
-        }
-    ];
-
     const audio       = document.getElementById('audio');
     const playlist    = document.getElementById('playlist');
     const btnPlay     = document.getElementById('btn-play');
@@ -282,6 +286,7 @@
     const statusMsg   = document.getElementById('status-msg');
     const volumeSlider = document.getElementById('volume');
 
+    let mixes = [];
     let currentIndex = null;
 
     function fmt(s) {
@@ -305,26 +310,39 @@
         btnPlay.textContent = playing ? '⏸' : '▶';
     }
 
-    // Build playlist
-    mixes.forEach((mix, i) => {
-        const card = document.createElement('div');
-        card.className = 'track-card';
-        card.innerHTML = `
-            <div class="play-btn">▶</div>
-            <div class="track-info">
-                <h3>${mix.title}</h3>
-                <p>${mix.meta}</p>
-            </div>
-        `;
-        card.addEventListener('click', () => {
-            if (currentIndex === i) {
-                togglePlay();
-            } else {
-                loadMix(i);
-            }
+    function buildPlaylist() {
+        playlist.innerHTML = '';
+        mixes.forEach((mix, i) => {
+            const card = document.createElement('div');
+            card.className = 'track-card';
+            card.innerHTML = `
+                <div class="play-btn">▶</div>
+                <div class="track-info">
+                    <h3>${mix.title}</h3>
+                    <p>${mix.meta}</p>
+                    ${mix.blurb ? `<div class="track-blurb">${mix.blurb}</div>` : ''}
+                </div>
+            `;
+            card.addEventListener('click', () => {
+                if (currentIndex === i) {
+                    togglePlay();
+                } else {
+                    loadMix(i);
+                }
+            });
+            playlist.appendChild(card);
         });
-        playlist.appendChild(card);
-    });
+    }
+
+    fetch('tracks.json')
+        .then(r => r.json())
+        .then(data => {
+            mixes = data;
+            buildPlaylist();
+        })
+        .catch(() => {
+            setStatus('Failed to load tracks.json', true);
+        });
 
     function loadMix(index) {
         if (currentIndex !== null) {
